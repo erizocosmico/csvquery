@@ -1,0 +1,25 @@
+language: go
+
+go:
+  - 1.10.x
+  - tip
+
+build_matrix:
+  fast_finish: true
+  allow_failures:
+    - tip
+
+script:
+  - go test -race -coverprofile=coverage.txt -covermode=atomic
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+  - rm coverage.txt # otherwise goreleaser will fail
+
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: curl -sL https://git.io/goreleaser | bash
+    on:
+      tags: true
+      condition: $TRAVIS_OS_NAME = linux

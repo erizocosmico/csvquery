@@ -1,0 +1,17 @@
+builds:
+  - main: ./cmd/csvquery
+    binary: csvquery
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+
+git:
+  short_hash: true
+
+release:
+  github:
+    owner: erizocosmico
+    name: csvquery
