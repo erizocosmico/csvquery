@@ -20,7 +20,8 @@ func TestCsvIter(t *testing.T) {
 
 	closer := new(fakeCloser)
 	r := csv.NewReader(strings.NewReader(testCsv))
-	iter := &csvRowIter{closer: closer, r: r}
+	var unlocked bool
+	iter := &csvRowIter{unlock: fakeUnlock(&unlocked), closer: closer, r: r}
 
 	rows, err := sql.RowIterToRows(iter)
 	require.NoError(err)
@@ -33,6 +34,7 @@ func TestCsvIter(t *testing.T) {
 	}
 
 	require.True(closer.closed)
+	require.True(unlocked)
 	require.Equal(expected, rows)
 }
 
@@ -43,4 +45,10 @@ type fakeCloser struct {
 func (f *fakeCloser) Close() error {
 	f.closed = true
 	return nil
+}
+
+func fakeUnlock(unlocked *bool) func() {
+	return func() {
+		*unlocked = true
+	}
 }
