@@ -9,7 +9,8 @@ import (
 )
 
 type csvRowIter struct {
-	closer io.Closer
+	closer io.Closer // free resources after the iter is done
+	unlock func()    // unlock the resources after iter is done
 	r      *csv.Reader
 	closed bool
 }
@@ -39,5 +40,6 @@ func (i *csvRowIter) Close() error {
 	}
 
 	i.closed = true
+	i.unlock()
 	return i.closer.Close()
 }

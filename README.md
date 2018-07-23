@@ -6,6 +6,7 @@ Query CSV files using SQL.
 
 - Interactive REPL to quickly query CSV files with on demand file loading.
 - MySQL-compatible server to query CSV files, powered by [go-mysql-server](https://github.com/src-d/go-mysql-server).
+- Insertions of new rows (using `INSERT INTO`).
 
 For more info about what subset of SQL is supported, check out the documentation of [go-mysql-server](https://github.com/src-d/go-mysql-server).
 
@@ -93,7 +94,8 @@ mysql> SELECT COUNT(*) as num_ratings, id
 ## Roadmap
 
 - [x] Read-only queries with REPL and server.
-- [ ] Support insertions.
+- [x] Support insertions.
+- [ ] Support updates and deletes.
 - [ ] Support creating indexes.
 
 ## LICENSE
