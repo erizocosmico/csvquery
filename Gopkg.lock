@@ -2,143 +2,184 @@
 
 
 [[projects]]
+  digest = "1:a9a80e9515397ba989a52af67b5fa27607a19513ac8e9f1e3456033879341e72"
   name = "github.com/chzyer/readline"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "62c6fe6193755f722b8b8788aa7357be55a50ff1"
   version = "v1.4"
 
 [[projects]]
+  digest = "1:a2c1d0e43bd3baaa071d1b9ed72c27d78169b2b269f71c105ac4ba34b1be4a39"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
+  pruneopts = "NUT"
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
 
 [[projects]]
+  digest = "1:713cc7628304d027a7e9edcb52da888a8912d6405250a8d9c8eff6f41dd54398"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
-    "ptypes/timestamp"
+    "ptypes/timestamp",
   ]
+  pruneopts = "NUT"
   revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
   version = "v1.1.0"
 
 [[projects]]
+  digest = "1:d0fbb40af7faf9cc62d1728be5fdd140ae17ce6e2aac6371971a0a6a2cc139d3"
   name = "github.com/jessevdk/go-flags"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "c6ca198ec95c841fdb89fc0de7496fed11ab854e"
   version = "v1.4.0"
 
 [[projects]]
+  digest = "1:cb591533458f6eb6e2c1065ff3eac6b50263d7847deb23fc9f79b25bc608970e"
   name = "github.com/mattn/go-runewidth"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "9e777a8366cce605130a531d2cd6363d07ad7317"
   version = "v0.0.2"
 
 [[projects]]
   branch = "master"
+  digest = "1:e34decedbcec12332c5836d16a6838f864e0b43c5b4f9aa9d9a85101015f87c2"
   name = "github.com/mitchellh/hashstructure"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "2bca23e0e452137f789efbc8610126fd8b94f73b"
 
 [[projects]]
   branch = "master"
+  digest = "1:e6baebf0bd20950e285254902a8f2241b4870528fb63fdc10460c67b1f31b1a3"
   name = "github.com/olekukonko/tablewriter"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "d4647c9c7a84d847478d890b816b7d8b62b0b279"
 
 [[projects]]
+  digest = "1:cbbefdf66f3efd8ffdd25ecc37bb82c253209a780aafb614c0dcd514d146e17d"
   name = "github.com/opentracing/opentracing-go"
   packages = [
     ".",
-    "log"
+    "log",
   ]
+  pruneopts = "NUT"
   revision = "1949ddbfd147afd4d964a9f00b24eb291e0e7c38"
   version = "v1.0.2"
 
 [[projects]]
+  digest = "1:5cf3f025cbee5951a4ee961de067c8a89fc95a5adabead774f82822efabab121"
   name = "github.com/pkg/errors"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
 
 [[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
+  pruneopts = "NUT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:8737b20e873c7cad069dfafd6382659b4cdf9e80359cdc159b8ec464893c932e"
   name = "github.com/satori/go.uuid"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
 
 [[projects]]
+  digest = "1:6989062eb7ccf25cf38bf4fe3dba097ee209f896cda42cefdca3927047bef7b6"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
   version = "v1.0.5"
 
 [[projects]]
+  digest = "1:3fa7947ca83b98ae553590d993886e845a4bff19b7b007e869c6e0dd3b9da9cd"
   name = "github.com/spf13/cast"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "8965335b8c7107321228e3e3702cab9832751bac"
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:a7cb71e7cef4a320ae6d91424df8f991ed4161aede6dea7ba8d8f3af1b589a6c"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
-    "require"
+    "require",
   ]
+  pruneopts = "NUT"
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
   version = "v1.2.2"
 
 [[projects]]
   branch = "master"
+  digest = "1:3f3a05ae0b95893d90b9b3b5afdb79a9b3d96e4e36e099d841ae602e4aca0da8"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
+  pruneopts = "NUT"
   revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
 
 [[projects]]
   branch = "master"
+  digest = "1:76ee51c3f468493aff39dbacc401e8831fbb765104cbf613b89bef01cf4bad70"
   name = "golang.org/x/net"
   packages = ["context"]
+  pruneopts = "NUT"
   revision = "6f138e0f60713a248abf7046f1014a3ba90f5341"
 
 [[projects]]
   branch = "master"
+  digest = "1:64107e3c8f52f341891a565d117bf263ed396fe0c16bad19634b25be25debfaa"
   name = "golang.org/x/sys"
   packages = [
     "unix",
-    "windows"
+    "windows",
   ]
+  pruneopts = "NUT"
   revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
 
 [[projects]]
   branch = "master"
+  digest = "1:601e63e7d4577f907118bec825902505291918859d223bce015539e79f1160e3"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
+  pruneopts = "NUT"
   revision = "8b2cc369ab52e0003a878865c9372afdd6ca5c5a"
 
 [[projects]]
+  digest = "1:d424ca806280371799f1cbf0fb4251cb760d74935f31553e9d10ee35270a918b"
   name = "google.golang.org/grpc"
   packages = [
     "codes",
-    "status"
+    "status",
   ]
+  pruneopts = "NUT"
   revision = "168a6198bcb0ef175f7dacec0b8691fc141dc9b8"
   version = "v1.13.0"
 
 [[projects]]
+  digest = "1:e79c76b3315c08c2c9d4d09d308ef2be7e4a4161fdcbe5c56040b3641f21096c"
   name = "gopkg.in/src-d/go-errors.v1"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "8bbbeeb767dfdd053b9b45d5a16a4f4ce2c6f694"
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:1b5470c1cd9c6c5efb36edfc6dbfb7518f10d0d98abb796adf47d9b586369d68"
   name = "gopkg.in/src-d/go-mysql-server.v0"
   packages = [
     ".",
@@ -150,12 +191,14 @@
     "sql/expression/function",
     "sql/expression/function/aggregation",
     "sql/parse",
-    "sql/plan"
+    "sql/plan",
   ]
-  revision = "57fdfc0c19084e136736ec4cd804065e1b91bde2"
+  pruneopts = "NUT"
+  revision = "1962cae7b321c43feaf47fc4ae29f2f243c8ff52"
 
 [[projects]]
   branch = "master"
+  digest = "1:979cf1df512644423a6fed6d9a488cab3c7051cf40ddc3c85a50ab1c2d830dcb"
   name = "gopkg.in/src-d/go-vitess.v0"
   packages = [
     "bytes2",
@@ -174,13 +217,24 @@
     "vt/proto/vtrpc",
     "vt/sqlparser",
     "vt/vterrors",
-    "vt/vttls"
+    "vt/vttls",
   ]
+  pruneopts = "NUT"
   revision = "2cb632cdef3c332f5cba7f035479213ca31dfe71"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0a29fe890c74d319b760ac39be33776b8cc255955c5daebaacdebd5f4d6bb6c2"
+  input-imports = [
+    "github.com/chzyer/readline",
+    "github.com/jessevdk/go-flags",
+    "github.com/olekukonko/tablewriter",
+    "github.com/sirupsen/logrus",
+    "github.com/stretchr/testify/require",
+    "gopkg.in/src-d/go-mysql-server.v0",
+    "gopkg.in/src-d/go-mysql-server.v0/server",
+    "gopkg.in/src-d/go-mysql-server.v0/sql",
+    "gopkg.in/src-d/go-vitess.v0/mysql",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -40,6 +40,7 @@ func Parse(ctx *sql.Context, s string) (sql.Node, error) {
 	span, ctx := ctx.Span("parse", opentracing.Tag{Key: "query", Value: s})
 	defer span.Finish()
 
+	s = strings.TrimSpace(s)
 	if strings.HasSuffix(s, ";") {
 		s = s[:len(s)-1]
 	}
@@ -430,14 +431,16 @@ func offsetToOffset(
 }
 
 func isAggregate(e sql.Expression) bool {
-	switch v := e.(type) {
-	case *expression.UnresolvedFunction:
-		return v.IsAggregate
-	case *expression.Alias:
-		return isAggregate(v.Child)
-	default:
-		return false
-	}
+	var isAgg bool
+	expression.Inspect(e, func(e sql.Expression) bool {
+		fn, ok := e.(*expression.UnresolvedFunction)
+		if ok {
+			isAgg = isAgg || fn.IsAggregate
+		}
+
+		return true
+	})
+	return isAgg
 }
 
 func selectToProjectOrGroupBy(se sqlparser.SelectExprs, g sqlparser.GroupBy, child sql.Node) (sql.Node, error) {

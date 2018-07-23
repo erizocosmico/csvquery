@@ -2,11 +2,18 @@ package sqle // import "gopkg.in/src-d/go-mysql-server.v0"
 
 import (
 	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-mysql-server.v0/sql"
 	"gopkg.in/src-d/go-mysql-server.v0/sql/analyzer"
 	"gopkg.in/src-d/go-mysql-server.v0/sql/expression/function"
 	"gopkg.in/src-d/go-mysql-server.v0/sql/parse"
 )
+
+// Config for the Engine.
+type Config struct {
+	// VersionPostfix to display with the `VERSION()` UDF.
+	VersionPostfix string
+}
 
 // Engine is a SQL engine.
 type Engine struct {
@@ -14,19 +21,26 @@ type Engine struct {
 	Analyzer *analyzer.Analyzer
 }
 
-// New creates a new Engine
-func New(c *sql.Catalog, a *analyzer.Analyzer) *Engine {
+// New creates a new Engine with custom configuration. To create an Engine with
+// the default settings use `NewDefault`.
+func New(c *sql.Catalog, a *analyzer.Analyzer, cfg *Config) *Engine {
+	var versionPostfix string
+	if cfg != nil {
+		versionPostfix = cfg.VersionPostfix
+	}
+
 	c.RegisterFunctions(function.Defaults)
+	c.RegisterFunction("version", sql.FunctionN(function.NewVersion(versionPostfix)))
+
 	return &Engine{c, a}
 }
 
 // NewDefault creates a new default Engine.
 func NewDefault() *Engine {
 	c := sql.NewCatalog()
-	c.RegisterFunctions(function.Defaults)
-
 	a := analyzer.NewDefault(c)
-	return &Engine{c, a}
+
+	return New(c, a, nil)
 }
 
 // Query executes a query without attaching to any context.
@@ -36,6 +50,8 @@ func (e *Engine) Query(
 ) (sql.Schema, sql.RowIter, error) {
 	span, ctx := ctx.Span("query", opentracing.Tag{Key: "query", Value: query})
 	defer span.Finish()
+
+	logrus.WithField("query", query).Debug("executing query")
 
 	parsed, err := parse.Parse(ctx, query)
 	if err != nil {
