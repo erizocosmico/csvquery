@@ -77,7 +77,7 @@ func (t Table) RowIter(ctx *sql.Context) (sql.RowIter, error) {
 }
 
 // Insert implements the sql.Inserter interface.
-func (t Table) Insert(row sql.Row) error {
+func (t Table) Insert(ctx *sql.Context, row sql.Row) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 

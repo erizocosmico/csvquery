@@ -55,7 +55,7 @@ func TestInsert(t *testing.T) {
 	require.NoError(err)
 
 	row := sql.NewRow("ma", "miss_america_fan", "10")
-	require.NoError(table.Insert(row))
+	require.NoError(table.Insert(sql.NewEmptyContext(), row))
 
 	iter, err := table.RowIter(sql.NewEmptyContext())
 	require.NoError(err)
@@ -95,7 +95,7 @@ func TestInsertConcurrent(t *testing.T) {
 	}()
 
 	row := sql.NewRow("ma", "miss_america_fan", "10")
-	require.NoError(table.Insert(row))
+	require.NoError(table.Insert(sql.NewEmptyContext(), row))
 
 	require.Equal(reads, len(iters))
 

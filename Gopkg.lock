@@ -18,7 +18,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:713cc7628304d027a7e9edcb52da888a8912d6405250a8d9c8eff6f41dd54398"
+  digest = "1:03e14cff610a8a58b774e36bd337fa979482be86aab01be81fb8bbd6d0f07fc8"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -64,7 +64,7 @@
   revision = "d4647c9c7a84d847478d890b816b7d8b62b0b279"
 
 [[projects]]
-  digest = "1:cbbefdf66f3efd8ffdd25ecc37bb82c253209a780aafb614c0dcd514d146e17d"
+  digest = "1:6cfa52afba4b02179b23171d9c6f3d49fee1fd936821ea5ccd4f14ab24a2fa0a"
   name = "github.com/opentracing/opentracing-go"
   packages = [
     ".",
@@ -114,7 +114,7 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:a7cb71e7cef4a320ae6d91424df8f991ed4161aede6dea7ba8d8f3af1b589a6c"
+  digest = "1:0331452965d8695c0a5633e0f509012987681a654f388f2ad0c3b2d7f7004b1c"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
@@ -142,7 +142,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:64107e3c8f52f341891a565d117bf263ed396fe0c16bad19634b25be25debfaa"
+  digest = "1:5420733d35e5e562fffc7c5b99660f3587af042b5420f19b17fe0426e6a5259d"
   name = "golang.org/x/sys"
   packages = [
     "unix",
@@ -160,7 +160,7 @@
   revision = "8b2cc369ab52e0003a878865c9372afdd6ca5c5a"
 
 [[projects]]
-  digest = "1:d424ca806280371799f1cbf0fb4251cb760d74935f31553e9d10ee35270a918b"
+  digest = "1:1050476333698199229fa3f4312d5ae54bd2b44ad1ca90f874b77c6e0af0c999"
   name = "google.golang.org/grpc"
   packages = [
     "codes",
@@ -179,7 +179,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:1b5470c1cd9c6c5efb36edfc6dbfb7518f10d0d98abb796adf47d9b586369d68"
+  digest = "1:a9743b984fcc768d24c7d4fdf9f4f027b233df76d6290f5e0b2fc9fd33c687ad"
   name = "gopkg.in/src-d/go-mysql-server.v0"
   packages = [
     ".",
@@ -194,11 +194,11 @@
     "sql/plan",
   ]
   pruneopts = "NUT"
-  revision = "1962cae7b321c43feaf47fc4ae29f2f243c8ff52"
+  revision = "eff16b2a86be40cb6bf6ef35801ab1eb283fd983"
 
 [[projects]]
   branch = "master"
-  digest = "1:979cf1df512644423a6fed6d9a488cab3c7051cf40ddc3c85a50ab1c2d830dcb"
+  digest = "1:1e53d879ade868ef82420c75b1177f1338bdaf9916cfd75fba1e51f931f67931"
   name = "gopkg.in/src-d/go-vitess.v0"
   packages = [
     "bytes2",

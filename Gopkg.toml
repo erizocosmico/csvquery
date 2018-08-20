@@ -1,10 +1,6 @@
 [[constraint]]
   name = "gopkg.in/src-d/go-mysql-server.v0"
-  revision = "1962cae7b321c43feaf47fc4ae29f2f243c8ff52"
-
-[[override]]
-  name = "github.com/satori/go.uuid"
-  revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
+  revision = "eff16b2a86be40cb6bf6ef35801ab1eb283fd983"
 
 [prune]
   non-go = true

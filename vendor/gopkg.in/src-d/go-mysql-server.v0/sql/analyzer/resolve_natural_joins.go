@@ -8,6 +8,16 @@ import (
 	"gopkg.in/src-d/go-mysql-server.v0/sql/plan"
 )
 
+type transformedJoin struct {
+	node     sql.Node
+	condCols map[string]*transformedSource
+}
+
+type transformedSource struct {
+	correct string
+	wrong   []string
+}
+
 func resolveNaturalJoins(ctx *sql.Context, a *Analyzer, n sql.Node) (sql.Node, error) {
 	span, ctx := ctx.Span("resolve_natural_joins")
 	defer span.Finish()
@@ -16,11 +26,19 @@ func resolveNaturalJoins(ctx *sql.Context, a *Analyzer, n sql.Node) (sql.Node, e
 		return n, nil
 	}
 
-	var transformed sql.Node
-	var colsToUnresolve = map[string][]string{}
+	var transformed []*transformedJoin
+	var aliasTables = map[string][]string{}
+	var colsToUnresolve = map[string]*transformedSource{}
 	a.Log("resolving natural joins, node of type %T", n)
 	node, err := n.TransformUp(func(n sql.Node) (sql.Node, error) {
 		a.Log("transforming node of type: %T", n)
+
+		if alias, ok := n.(*plan.TableAlias); ok {
+			table := alias.Child.(sql.Table).Name()
+			aliasTables[alias.Name()] = append(aliasTables[alias.Name()], table)
+			return n, nil
+		}
+
 		if n.Resolved() {
 			return n, nil
 		}
@@ -70,7 +88,16 @@ func resolveNaturalJoins(ctx *sql.Context, a *Analyzer, n sql.Node) (sql.Node, e
 
 					found = true
 					seen[lcol.Name] = struct{}{}
-					colsToUnresolve[lcol.Name] = []string{lcol.Source, rcol.Source}
+					if source, ok := colsToUnresolve[lcol.Name]; ok {
+						source.correct = lcol.Source
+						source.wrong = append(source.wrong, rcol.Source)
+					} else {
+						colsToUnresolve[lcol.Name] = &transformedSource{
+							correct: lcol.Source,
+							wrong:   []string{rcol.Source},
+						}
+					}
+
 					break
 				}
 			}
@@ -101,46 +128,35 @@ func resolveNaturalJoins(ctx *sql.Context, a *Analyzer, n sql.Node) (sql.Node, e
 
 		projections := append(append(common, left...), right...)
 
-		transformed = plan.NewProject(
-			projections,
-			plan.NewInnerJoin(
-				join.Left,
-				join.Right,
-				expression.JoinAnd(conditions...),
+		tj := &transformedJoin{
+			node: plan.NewProject(
+				projections,
+				plan.NewInnerJoin(
+					join.Left,
+					join.Right,
+					expression.JoinAnd(conditions...),
+				),
 			),
-		)
-
-		return transformed, nil
-	})
-
-	if err != nil || transformed == nil {
-		return node, err
-	}
-
-	var nodesToUnresolve []sql.Node
-	plan.Inspect(node, func(n sql.Node) bool {
-		if n == transformed || n == nil {
-			return false
+			condCols: colsToUnresolve,
 		}
 
-		nodesToUnresolve = append(nodesToUnresolve, n)
-		return true
+		transformed = append(transformed, tj)
+
+		return tj.node, nil
 	})
 
-	if len(nodesToUnresolve) == 0 {
+	if err != nil || len(transformed) == 0 {
 		return node, err
 	}
 
+	var transformedSeen bool
 	return node.TransformUp(func(node sql.Node) (sql.Node, error) {
-		var found bool
-		for _, nu := range nodesToUnresolve {
-			if reflect.DeepEqual(nu, node) {
-				found = true
-				break
-			}
+		if ok, _ := isTransformedNode(node, transformed); ok {
+			transformedSeen = true
+			return node, nil
 		}
 
-		if !found {
+		if !transformedSeen {
 			return node, nil
 		}
 
@@ -165,17 +181,86 @@ func resolveNaturalJoins(ctx *sql.Context, a *Analyzer, n sql.Node) (sql.Node, e
 				return e, nil
 			}
 
-			correctSource := sources[0]
-			wrongSource := sources[1]
-
-			if table != wrongSource {
+			if !mustUnresolve(aliasTables, table, sources.wrong) {
 				return e, nil
 			}
 
 			return expression.NewUnresolvedQualifiedColumn(
-				correctSource,
+				sources.correct,
 				col,
 			), nil
 		})
 	})
+}
+
+func isTransformedNode(node sql.Node, transformed []*transformedJoin) (is bool, colsToUnresolve map[string]*transformedSource) {
+	var project *plan.Project
+	var join *plan.InnerJoin
+	switch n := node.(type) {
+	case *plan.Project:
+		var ok bool
+		join, ok = n.Child.(*plan.InnerJoin)
+		if !ok {
+			return
+		}
+
+		project = n
+	case *plan.InnerJoin:
+		join = n
+
+	default:
+		return
+	}
+
+	for _, t := range transformed {
+		tproject, ok := t.node.(*plan.Project)
+		if !ok {
+			return
+		}
+
+		tjoin, ok := tproject.Child.(*plan.InnerJoin)
+		if !ok {
+			return
+		}
+
+		if project != nil && !reflect.DeepEqual(project.Projections, tproject.Projections) {
+			continue
+		}
+
+		if reflect.DeepEqual(join.Cond, tjoin.Cond) {
+			is = true
+			colsToUnresolve = t.condCols
+		}
+	}
+
+	return
+}
+
+func mustUnresolve(aliasTable map[string][]string, table string, wrongSources []string) bool {
+	return isIn(table, wrongSources) || isAliasFor(aliasTable, table, wrongSources)
+}
+
+func isIn(s string, l []string) bool {
+	for _, e := range l {
+		if s == e {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isAliasFor(aliasTable map[string][]string, table string, wrongSources []string) bool {
+	tables, ok := aliasTable[table]
+	if !ok {
+		return false
+	}
+
+	for _, t := range tables {
+		if isIn(t, wrongSources) {
+			return true
+		}
+	}
+
+	return false
 }
