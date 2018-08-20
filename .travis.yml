@@ -9,6 +9,9 @@ build_matrix:
   allow_failures:
     - tip
 
+install:
+  - go get -v github.com/stretchr/testify
+
 script:
   - go test -coverprofile=coverage.txt -covermode=atomic
 
