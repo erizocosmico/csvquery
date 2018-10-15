@@ -18,6 +18,14 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:e2b86e41f3d669fc36b50d31d32d22c8ac656c75aa5ea89717ce7177e134ff2a"
+  name = "github.com/golang/glog"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
+
+[[projects]]
   digest = "1:03e14cff610a8a58b774e36bd337fa979482be86aab01be81fb8bbd6d0f07fc8"
   name = "github.com/golang/protobuf"
   packages = [
@@ -56,6 +64,14 @@
   revision = "2bca23e0e452137f789efbc8610126fd8b94f73b"
 
 [[projects]]
+  digest = "1:7a880746686307655232135521a665f5c719013a978cf2d560c050fbb27489f0"
+  name = "github.com/moovweb/rubex"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "cb849acea6148000db8a55743f71476b0897ea41"
+  version = "6.3.107"
+
+[[projects]]
   branch = "master"
   digest = "1:e6baebf0bd20950e285254902a8f2241b4870528fb63fdc10460c67b1f31b1a3"
   name = "github.com/olekukonko/tablewriter"
@@ -89,13 +105,6 @@
   pruneopts = "NUT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
-
-[[projects]]
-  digest = "1:8737b20e873c7cad069dfafd6382659b4cdf9e80359cdc159b8ec464893c932e"
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  pruneopts = "NUT"
-  revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
 
 [[projects]]
   digest = "1:6989062eb7ccf25cf38bf4fe3dba097ee209f896cda42cefdca3927047bef7b6"
@@ -179,10 +188,11 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:a9743b984fcc768d24c7d4fdf9f4f027b233df76d6290f5e0b2fc9fd33c687ad"
+  digest = "1:eaeaf72fff7189c728f48b5c0d7423c2055530dad553b651a9a448a27e07cebd"
   name = "gopkg.in/src-d/go-mysql-server.v0"
   packages = [
     ".",
+    "internal/regex",
     "mem",
     "server",
     "sql",
@@ -194,7 +204,7 @@
     "sql/plan",
   ]
   pruneopts = "NUT"
-  revision = "eff16b2a86be40cb6bf6ef35801ab1eb283fd983"
+  revision = "8c2fc22e403baca1bd5641198eac4398f57c1266"
 
 [[projects]]
   branch = "master"
@@ -221,6 +231,38 @@
   ]
   pruneopts = "NUT"
   revision = "2cb632cdef3c332f5cba7f035479213ca31dfe71"
+
+[[projects]]
+  digest = "1:35973118ac6852e492e52305414b99c2d403d58e4579e3ca8e63ffb09a6f5d60"
+  name = "gopkg.in/src-d/go-vitess.v1"
+  packages = [
+    "bucketpool",
+    "bytes2",
+    "cache",
+    "event",
+    "hack",
+    "mysql",
+    "netutil",
+    "sqltypes",
+    "stats",
+    "sync2",
+    "tb",
+    "vt/log",
+    "vt/logutil",
+    "vt/proto/binlogdata",
+    "vt/proto/logutil",
+    "vt/proto/query",
+    "vt/proto/replicationdata",
+    "vt/proto/topodata",
+    "vt/proto/vtgate",
+    "vt/proto/vtrpc",
+    "vt/sqlparser",
+    "vt/vterrors",
+    "vt/vttls",
+  ]
+  pruneopts = "NUT"
+  revision = "d16c95d2bddd8625fd29ba3d264b36082f76f83c"
+  version = "v1.2.0"
 
 [solve-meta]
   analyzer-name = "dep"

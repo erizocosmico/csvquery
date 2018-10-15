@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"gopkg.in/src-d/go-mysql-server.v0/sql"
+	"gopkg.in/src-d/go-mysql-server.v0/sql/plan"
 )
 
 var expectedRatings = []sql.Row{
@@ -37,7 +38,7 @@ func TestTable(t *testing.T) {
 		table.Schema(),
 	)
 
-	iter, err := table.RowIter(sql.NewEmptyContext())
+	iter, err := plan.NewResolvedTable(table).RowIter(sql.NewEmptyContext())
 	require.NoError(err)
 
 	rows, err := sql.RowIterToRows(iter)
@@ -57,7 +58,7 @@ func TestInsert(t *testing.T) {
 	row := sql.NewRow("ma", "miss_america_fan", "10")
 	require.NoError(table.Insert(sql.NewEmptyContext(), row))
 
-	iter, err := table.RowIter(sql.NewEmptyContext())
+	iter, err := plan.NewResolvedTable(table).RowIter(sql.NewEmptyContext())
 	require.NoError(err)
 
 	rows, err := sql.RowIterToRows(iter)
@@ -77,7 +78,7 @@ func TestInsertConcurrent(t *testing.T) {
 
 	var iters []sql.RowIter
 	for i := 0; i < 5; i++ {
-		iter, err := table.RowIter(sql.NewEmptyContext())
+		iter, err := table.PartitionRows(sql.NewEmptyContext(), nil)
 		require.NoError(err)
 
 		iters = append(iters, iter)
@@ -99,7 +100,7 @@ func TestInsertConcurrent(t *testing.T) {
 
 	require.Equal(reads, len(iters))
 
-	iter, err := table.RowIter(sql.NewEmptyContext())
+	iter, err := plan.NewResolvedTable(table).RowIter(sql.NewEmptyContext())
 	require.NoError(err)
 
 	rows, err := sql.RowIterToRows(iter)

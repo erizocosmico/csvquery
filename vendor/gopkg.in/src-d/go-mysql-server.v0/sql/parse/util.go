@@ -10,6 +10,8 @@ import (
 	"unicode"
 
 	errors "gopkg.in/src-d/go-errors.v1"
+	"gopkg.in/src-d/go-mysql-server.v0/sql"
+	"gopkg.in/src-d/go-vitess.v1/vt/sqlparser"
 )
 
 var (
@@ -93,27 +95,50 @@ func optional(steps ...parseFunc) parseFunc {
 	}
 }
 
+func readLetter(r *bufio.Reader, buf *bytes.Buffer) error {
+	ru, _, err := r.ReadRune()
+	if err != nil {
+		if err == io.EOF {
+			return nil
+		}
+
+		return err
+	}
+
+	buf.WriteRune(ru)
+	return nil
+}
+
+func readValidIdentRune(r *bufio.Reader, buf *bytes.Buffer) error {
+	ru, _, err := r.ReadRune()
+	if err != nil {
+		return err
+	}
+
+	if !unicode.IsLetter(ru) && !unicode.IsDigit(ru) && ru != '_' {
+		if err := r.UnreadRune(); err != nil {
+			return err
+		}
+		return io.EOF
+	}
+
+	buf.WriteRune(ru)
+	return nil
+}
+
 func readIdent(ident *string) parseFunc {
 	return func(r *bufio.Reader) error {
 		var buf bytes.Buffer
-		for {
-			ru, _, err := r.ReadRune()
-			if err == io.EOF {
-				break
-			}
+		if err := readLetter(r, &buf); err != nil {
+			return err
+		}
 
-			if err != nil {
+		for {
+			if err := readValidIdentRune(r, &buf); err == io.EOF {
+				break
+			} else if err != nil {
 				return err
 			}
-
-			if !unicode.IsLetter(ru) && ru != '_' {
-				if err := r.UnreadRune(); err != nil {
-					return err
-				}
-				break
-			}
-
-			buf.WriteRune(ru)
 		}
 
 		*ident = strings.ToLower(buf.String())
@@ -151,4 +176,27 @@ func readRemaining(val *string) parseFunc {
 		*val = string(bytes)
 		return nil
 	}
+}
+
+func parseExpr(str string) (sql.Expression, error) {
+	stmt, err := sqlparser.Parse("SELECT " + str)
+	if err != nil {
+		return nil, err
+	}
+
+	selectStmt, ok := stmt.(*sqlparser.Select)
+	if !ok {
+		return nil, errInvalidIndexExpression.New(str)
+	}
+
+	if len(selectStmt.SelectExprs) != 1 {
+		return nil, errInvalidIndexExpression.New(str)
+	}
+
+	selectExpr, ok := selectStmt.SelectExprs[0].(*sqlparser.AliasedExpr)
+	if !ok {
+		return nil, errInvalidIndexExpression.New(str)
+	}
+
+	return exprToExpression(selectExpr.Expr)
 }

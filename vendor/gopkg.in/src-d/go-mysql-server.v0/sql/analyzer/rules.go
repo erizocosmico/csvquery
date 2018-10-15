@@ -6,11 +6,10 @@ import (
 
 // DefaultRules to apply when analyzing nodes.
 var DefaultRules = []Rule{
-	{"resolve_subqueries", resolveSubqueries},
-	{"resolve_tables", resolveTables},
 	{"resolve_natural_joins", resolveNaturalJoins},
 	{"resolve_orderby_literals", resolveOrderByLiterals},
 	{"resolve_orderby", resolveOrderBy},
+	{"resolve_grouping_columns", resolveGroupingColumns},
 	{"qualify_columns", qualifyColumns},
 	{"resolve_columns", resolveColumns},
 	{"resolve_database", resolveDatabase},
@@ -18,13 +17,31 @@ var DefaultRules = []Rule{
 	{"resolve_functions", resolveFunctions},
 	{"reorder_aggregations", reorderAggregations},
 	{"reorder_projection", reorderProjection},
-	{"assign_indexes", assignIndexes},
-	{"pushdown", pushdown},
 	{"move_join_conds_to_filter", moveJoinConditionsToFilter},
 	{"eval_filter", evalFilter},
 	{"optimize_distinct", optimizeDistinct},
+}
+
+// OnceBeforeDefault contains the rules to be applied just once before the
+// DefaultRules.
+var OnceBeforeDefault = []Rule{
+	{"resolve_subqueries", resolveSubqueries},
+	{"resolve_tables", resolveTables},
+}
+
+// OnceAfterDefault contains the rules to be applied just once after the
+// DefaultRules.
+var OnceAfterDefault = []Rule{
+	{"assign_catalog", assignCatalog},
+	{"pushdown", pushdown},
 	{"erase_projection", eraseProjection},
-	{"index_catalog", indexCatalog},
+}
+
+// OnceAfterAll contains the rules to be applied just once after all other
+// rules have been applied.
+var OnceAfterAll = []Rule{
+	{"track_process", trackProcess},
+	{"parallelize", parallelize},
 }
 
 var (

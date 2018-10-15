@@ -7,7 +7,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-mysql-server.v0/server"
-	"gopkg.in/src-d/go-vitess.v0/mysql"
+	"gopkg.in/src-d/go-vitess.v1/mysql"
 )
 
 // Server starts a new MySQL server with the CSV files as a backend.

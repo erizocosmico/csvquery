@@ -1,6 +1,6 @@
 [[constraint]]
   name = "gopkg.in/src-d/go-mysql-server.v0"
-  revision = "eff16b2a86be40cb6bf6ef35801ab1eb283fd983"
+  revision = "8c2fc22e403baca1bd5641198eac4398f57c1266"
 
 [prune]
   non-go = true

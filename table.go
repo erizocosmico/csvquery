@@ -59,8 +59,13 @@ func (t Table) Name() string { return t.name }
 // Resolved implements the sql.Table interface.
 func (t Table) Resolved() bool { return true }
 
-// RowIter returns an iterator over all table rows.
-func (t Table) RowIter(ctx *sql.Context) (sql.RowIter, error) {
+// Partitions implements the sql.Table interface.
+func (t Table) Partitions(ctx *sql.Context) (sql.PartitionIter, error) {
+	return &partitionIter{f: t.file}, nil
+}
+
+// PartitionRows returns an iterator over all partition rows.
+func (t Table) PartitionRows(ctx *sql.Context, p sql.Partition) (sql.RowIter, error) {
 	t.mu.RLock()
 	f, err := os.Open(t.file)
 	if err != nil {
@@ -136,12 +141,26 @@ func (t Table) String() string {
 	return tp.String()
 }
 
-// TransformExpressionsUp implements the sql.Table interface.
-func (t Table) TransformExpressionsUp(sql.TransformExprFunc) (sql.Node, error) {
-	return t, nil
+type partition string
+
+func (p partition) Key() []byte {
+	return []byte(p)
 }
 
-// TransformUp implements the sql.Table interface.
-func (t Table) TransformUp(fn sql.TransformNodeFunc) (sql.Node, error) {
-	return fn(t)
+type partitionIter struct {
+	f    string
+	done bool
+}
+
+func (p *partitionIter) Next() (sql.Partition, error) {
+	if p.done {
+		return nil, io.EOF
+	}
+	p.done = true
+	return partition(p.f), nil
+}
+
+func (p *partitionIter) Close() error {
+	p.done = true
+	return nil
 }

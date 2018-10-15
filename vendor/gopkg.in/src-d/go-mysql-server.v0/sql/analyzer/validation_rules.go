@@ -29,7 +29,7 @@ var (
 	ErrValidationGroupBy = errors.NewKind("GroupBy aggregate expression '%v' doesn't appear in the grouping columns")
 	// ErrValidationSchemaSource is returned when there is any column source
 	// that does not match the table name.
-	ErrValidationSchemaSource = errors.NewKind("all schema column sources don't match table name, expecting %q, but found: %s")
+	ErrValidationSchemaSource = errors.NewKind("one or more schema sources are empty")
 	// ErrProjectTuple is returned when there is a tuple of more than 1 column
 	// inside a projection.
 	ErrProjectTuple = errors.NewKind("selected field %d should have 1 column, but has %d")
@@ -128,10 +128,10 @@ func validateSchemaSource(ctx *sql.Context, a *Analyzer, n sql.Node) (sql.Node, 
 	switch n := n.(type) {
 	case *plan.TableAlias:
 		// table aliases should not be validated
-		if child, ok := n.Child.(sql.Table); ok {
+		if child, ok := n.Child.(*plan.ResolvedTable); ok {
 			return n, validateSchema(child)
 		}
-	case sql.Table:
+	case *plan.ResolvedTable:
 		return n, validateSchema(n)
 	}
 	return n, nil
@@ -169,11 +169,10 @@ func validateIndexCreation(ctx *sql.Context, a *Analyzer, n sql.Node) (sql.Node,
 	return n, nil
 }
 
-func validateSchema(t sql.Table) error {
-	name := t.Name()
+func validateSchema(t *plan.ResolvedTable) error {
 	for _, col := range t.Schema() {
-		if col.Source != name {
-			return ErrValidationSchemaSource.New(name, col.Source)
+		if col.Source == "" {
+			return ErrValidationSchemaSource.New()
 		}
 	}
 	return nil

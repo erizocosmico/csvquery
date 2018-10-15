@@ -7,6 +7,7 @@ import (
 	"gopkg.in/src-d/go-mysql-server.v0/sql/analyzer"
 	"gopkg.in/src-d/go-mysql-server.v0/sql/expression/function"
 	"gopkg.in/src-d/go-mysql-server.v0/sql/parse"
+	"gopkg.in/src-d/go-mysql-server.v0/sql/plan"
 )
 
 // Config for the Engine.
@@ -43,7 +44,7 @@ func NewDefault() *Engine {
 	return New(c, a, nil)
 }
 
-// Query executes a query without attaching to any context.
+// Query executes a query.
 func (e *Engine) Query(
 	ctx *sql.Context,
 	query string,
@@ -54,6 +55,22 @@ func (e *Engine) Query(
 	logrus.WithField("query", query).Debug("executing query")
 
 	parsed, err := parse.Parse(ctx, query)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var typ = sql.QueryProcess
+	if _, ok := parsed.(*plan.CreateIndex); ok {
+		typ = sql.CreateIndexProcess
+	}
+
+	ctx, err = e.Catalog.AddProcess(ctx, typ, query)
+	defer func() {
+		if err != nil && ctx != nil {
+			e.Catalog.Done(ctx.Pid())
+		}
+	}()
+
 	if err != nil {
 		return nil, nil, err
 	}
@@ -73,11 +90,10 @@ func (e *Engine) Query(
 
 // AddDatabase adds the given database to the catalog.
 func (e *Engine) AddDatabase(db sql.Database) {
-	e.Catalog.Databases = append(e.Catalog.Databases, db)
-	e.Analyzer.CurrentDatabase = db.Name()
+	e.Catalog.AddDatabase(db)
 }
 
 // Init performs all the initialization requirements for the engine to work.
 func (e *Engine) Init() error {
-	return e.Catalog.LoadIndexes(e.Catalog.Databases)
+	return e.Catalog.LoadIndexes(e.Catalog.AllDatabases())
 }

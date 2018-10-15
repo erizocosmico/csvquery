@@ -1,7 +1,6 @@
 package analyzer
 
 import (
-	"fmt"
 	"reflect"
 
 	errors "gopkg.in/src-d/go-errors.v1"
@@ -19,12 +18,7 @@ type indexLookup struct {
 	indexes []sql.Index
 }
 
-func assignIndexes(ctx *sql.Context, a *Analyzer, node sql.Node) (sql.Node, error) {
-	if !node.Resolved() {
-		a.Log("node is not resolved, skipping assigning indexes")
-		return node, nil
-	}
-
+func assignIndexes(a *Analyzer, node sql.Node) (map[string]*indexLookup, error) {
 	a.Log("assigning indexes, node of type: %T", node)
 
 	var indexes map[string]*indexLookup
@@ -63,32 +57,7 @@ func assignIndexes(ctx *sql.Context, a *Analyzer, node sql.Node) (sql.Node, erro
 		return true
 	})
 
-	if err != nil {
-		return nil, err
-	}
-
-	return node.TransformUp(func(node sql.Node) (sql.Node, error) {
-		table, ok := node.(sql.Indexable)
-		if !ok {
-			return node, nil
-		}
-
-		// if we assign indexes to already assigned tables there will be
-		// an infinite loop
-		switch table.(type) {
-		case *plan.IndexableTable, *indexable:
-			return node, nil
-		}
-
-		index, ok := indexes[table.Name()]
-		if !ok {
-			return node, nil
-		}
-
-		delete(indexes, table.Name())
-
-		return &indexable{index, table}, nil
-	})
+	return indexes, err
 }
 
 func getIndexes(e sql.Expression, a *Analyzer) (map[string]*indexLookup, error) {
@@ -132,7 +101,7 @@ func getIndexes(e sql.Expression, a *Analyzer) (map[string]*indexLookup, error) 
 		// the right branch is evaluable and the indexlookup supports set
 		// operations.
 		if !isEvaluable(c.Left()) && isEvaluable(c.Right()) {
-			idx := a.Catalog.IndexByExpression(a.CurrentDatabase, c.Left())
+			idx := a.Catalog.IndexByExpression(a.Catalog.CurrentDatabase(), c.Left())
 			if idx != nil {
 				var nidx sql.NegateIndex
 				if negate {
@@ -229,7 +198,7 @@ func getIndexes(e sql.Expression, a *Analyzer) (map[string]*indexLookup, error) 
 		}
 	case *expression.Between:
 		if !isEvaluable(e.Val) && isEvaluable(e.Upper) && isEvaluable(e.Lower) {
-			idx := a.Catalog.IndexByExpression(a.CurrentDatabase, e.Val)
+			idx := a.Catalog.IndexByExpression(a.Catalog.CurrentDatabase(), e.Val)
 			if idx != nil {
 				// release the index if it was not used
 				defer func() {
@@ -332,7 +301,7 @@ func getComparisonIndex(
 	}
 
 	if !isEvaluable(left) && isEvaluable(right) {
-		idx := a.Catalog.IndexByExpression(a.CurrentDatabase, left)
+		idx := a.Catalog.IndexByExpression(a.Catalog.CurrentDatabase(), left)
 		if idx != nil {
 			value, err := right.Eval(sql.NewEmptyContext(), nil)
 			if err != nil {
@@ -409,7 +378,7 @@ func getNegatedIndexes(a *Analyzer, not *expression.Not) (map[string]*indexLooku
 			return nil, nil
 		}
 
-		idx := a.Catalog.IndexByExpression(a.CurrentDatabase, left)
+		idx := a.Catalog.IndexByExpression(a.Catalog.CurrentDatabase(), left)
 		if idx == nil {
 			return nil, nil
 		}
@@ -523,7 +492,7 @@ func getMultiColumnIndexes(
 				cols[i] = e.col
 			}
 
-			exprList := a.Catalog.ExpressionsWithIndexes(a.CurrentDatabase, cols...)
+			exprList := a.Catalog.ExpressionsWithIndexes(a.Catalog.CurrentDatabase(), cols...)
 
 			var selected []sql.Expression
 			for _, l := range exprList {
@@ -566,7 +535,7 @@ func getMultiColumnIndexForExpressions(
 	exprs []columnExpr,
 	used map[sql.Expression]struct{},
 ) (index sql.Index, lookup sql.IndexLookup, err error) {
-	index = a.Catalog.IndexByExpression(a.CurrentDatabase, selected...)
+	index = a.Catalog.IndexByExpression(a.Catalog.CurrentDatabase(), selected...)
 	if index != nil {
 		var first sql.Expression
 		for _, e := range exprs {
@@ -759,27 +728,4 @@ func canMergeIndexes(a, b sql.IndexLookup) bool {
 
 	_, ok = a.(sql.SetOperations)
 	return ok
-}
-
-// indexable is a wrapper to hold some information along with the table.
-// It's meant to be used by the pushdown rule to finally wrap the Indexable
-// table with all it requires.
-type indexable struct {
-	index *indexLookup
-	sql.Indexable
-}
-
-func (i *indexable) Children() []sql.Node { return nil }
-func (i *indexable) Name() string         { return i.Indexable.Name() }
-func (i *indexable) Resolved() bool       { return i.Indexable.Resolved() }
-func (i *indexable) RowIter(*sql.Context) (sql.RowIter, error) {
-	return nil, fmt.Errorf("indexable is a placeholder node, but RowIter was called")
-}
-func (i *indexable) Schema() sql.Schema { return i.Indexable.Schema() }
-func (i *indexable) String() string     { return i.Indexable.String() }
-func (i *indexable) TransformUp(fn sql.TransformNodeFunc) (sql.Node, error) {
-	return fn(i)
-}
-func (i *indexable) TransformExpressionsUp(fn sql.TransformExprFunc) (sql.Node, error) {
-	return i, nil
 }

@@ -1,10 +1,12 @@
 package server // import "gopkg.in/src-d/go-mysql-server.v0/server"
 
 import (
+	"time"
+
 	opentracing "github.com/opentracing/opentracing-go"
 	"gopkg.in/src-d/go-mysql-server.v0"
 
-	"gopkg.in/src-d/go-vitess.v0/mysql"
+	"gopkg.in/src-d/go-vitess.v1/mysql"
 )
 
 // Server is a MySQL server for SQLe engines.
@@ -23,6 +25,9 @@ type Config struct {
 	// Tracer to use in the server. By default, a noop tracer will be used if
 	// no tracer is provided.
 	Tracer opentracing.Tracer
+
+	ConnReadTimeout  time.Duration
+	ConnWriteTimeout time.Duration
 }
 
 // NewDefaultServer creates a Server with the default session builder.
@@ -40,8 +45,16 @@ func NewServer(cfg Config, e *sqle.Engine, sb SessionBuilder) (*Server, error) {
 		tracer = opentracing.NoopTracer{}
 	}
 
-	handler := NewHandler(e, NewSessionManager(sb, tracer))
-	l, err := mysql.NewListener(cfg.Protocol, cfg.Address, cfg.Auth, handler)
+	if cfg.ConnReadTimeout < 0 {
+		cfg.ConnReadTimeout = 0
+	}
+
+	if cfg.ConnWriteTimeout < 0 {
+		cfg.ConnWriteTimeout = 0
+	}
+
+	handler := NewHandler(e, NewSessionManager(sb, tracer, cfg.Address))
+	l, err := mysql.NewListener(cfg.Protocol, cfg.Address, cfg.Auth, handler, cfg.ConnReadTimeout, cfg.ConnWriteTimeout)
 	if err != nil {
 		return nil, err
 	}

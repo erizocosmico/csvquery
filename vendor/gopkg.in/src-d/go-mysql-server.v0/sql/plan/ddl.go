@@ -30,7 +30,7 @@ func NewCreateTable(db sql.Database, name string, schema sql.Schema) *CreateTabl
 
 // Resolved implements the Resolvable interface.
 func (c *CreateTable) Resolved() bool {
-	_, ok := c.Database.(*sql.UnresolvedDatabase)
+	_, ok := c.Database.(sql.UnresolvedDatabase)
 	return !ok
 }
 
@@ -45,14 +45,10 @@ func (c *CreateTable) RowIter(s *sql.Context) (sql.RowIter, error) {
 }
 
 // Schema implements the Node interface.
-func (c *CreateTable) Schema() sql.Schema {
-	return sql.Schema{}
-}
+func (c *CreateTable) Schema() sql.Schema { return nil }
 
 // Children implements the Node interface.
-func (c *CreateTable) Children() []sql.Node {
-	return nil
-}
+func (c *CreateTable) Children() []sql.Node { return nil }
 
 // TransformUp implements the Transformable interface.
 func (c *CreateTable) TransformUp(f sql.TransformNodeFunc) (sql.Node, error) {
